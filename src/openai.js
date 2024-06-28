@@ -12,7 +12,6 @@ class OpenAI {
     QUEUED: "queued",
     IN_PROGRESS: "in_progress",
   };
-
   static roles = {
     ASSISTANT: "assistant",
     USER: "user",
@@ -33,8 +32,16 @@ class OpenAI {
     }
     return threadId;
   }
-  deleteThread(threadId) {
-    return this.openai.beta.threads.del(threadId);
+  async deleteThread(chatId) {
+    let threadId = threadsManager.getThreadId(chatId);
+    if (threadId) {
+      try {
+        await this.openai.beta.threads.del(threadId);
+      } catch (error) {
+        console.log("deleteThread error: ", error);
+      }
+      threadsManager.deleteThreadId(threadId);
+    }
   }
   createMessage(threadId, text) {
     return this.openai.beta.threads.messages.create(threadId, {

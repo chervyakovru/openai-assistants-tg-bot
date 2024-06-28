@@ -10,6 +10,11 @@ bot.command("start", async (ctx) => {
   await ctx.reply("Жду вашего текстового сообщения");
 });
 
+bot.command("clear", async (ctx) => {
+  await openai.deleteThread(ctx.message.chat.id);
+  await ctx.reply("История сообщений очищена");
+});
+
 bot.on(message("text"), async (ctx) => {
   try {
     await ctx.reply(code("Сообщение принял. Жду ответ от сервера"));
