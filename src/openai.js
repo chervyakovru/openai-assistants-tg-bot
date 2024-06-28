@@ -2,6 +2,10 @@ import { default as OpenAIApi } from "openai";
 import config from "config";
 import { threadsManager } from "./threadsManager.js";
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 class OpenAI {
   static statuses = {
     COMPLETED: "completed",
@@ -55,6 +59,7 @@ class OpenAI {
       if (status === OpenAI.statuses.COMPLETED) {
         break;
       }
+      await sleep(1500);
     }
 
     if (status !== OpenAI.statuses.COMPLETED) {
