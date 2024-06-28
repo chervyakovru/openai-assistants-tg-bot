@@ -63,8 +63,31 @@ class OpenAI {
   }
   async getLastMessageText(threadId) {
     const allMessages = await this.openai.beta.threads.messages.list(threadId);
-    const response = allMessages.data[0].content[0].text.value;
-    return response;
+    const message = allMessages.data[0];
+
+    if (message.content[0].type === "text") {
+      const { text } = message.content[0];
+      const { annotations } = text;
+      const citations = [];
+
+      let index = 0;
+      for (let annotation of annotations) {
+        text.value = text.value.replace(annotation.text, " [" + index + "]");
+        const { file_citation } = annotation;
+        if (file_citation) {
+          const citedFile = await this.openai.files.retrieve(
+            file_citation.file_id
+          );
+          citations.push("[" + index + "] – " + citedFile.filename);
+        }
+        index++;
+      }
+
+      const response = `${text.value}\n\n${citations.join("\n")}`;
+      return response;
+    } else {
+      throw new Error("Cant find text in last message in thread");
+    }
   }
 }
 
